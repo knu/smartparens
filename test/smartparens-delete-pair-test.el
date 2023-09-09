@@ -13,12 +13,20 @@
       (delete-backward-char 1)
       (should (equal (buffer-string) "\\{")))))
 
-(ert-deftest sp-test-delete-pair-closing ()
+(ert-deftest sp-test-delete-pair-opening ()
   (let ((sp-pairs sp--test-basic-pairs))
     (sp-test-with-temp-elisp-buffer "\\{|"
       (smartparens-strict-mode -1)
       (delete-backward-char 1)
       (should (equal (buffer-string) "")))))
+
+(ert-deftest sp-test-sp-delete-char-closing ()
+  (let ((sp-pairs sp--test-basic-pairs))
+    (sp-test-with-temp-elisp-buffer "\\big|"
+      (execute-kbd-macro "(")
+      (should (equal (buffer-string) "\\big(\\big)"))
+      (sp-delete-char 1)
+      (should (equal (buffer-string) "\\big(")))))
 
 (ert-deftest sp-test-delete-pair-in-org-mode-according-to-syntax ()
   (sp-test-with-temp-buffer "\"asdasd\"|    \"asdad\""

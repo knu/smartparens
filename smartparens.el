@@ -8794,6 +8794,8 @@ This command assumes point is not in a string or comment."
 (defun sp-delete-char (&optional arg)
   "Delete a character forward or move forward over a delimiter.
 
+If right after autoinsertion, delete the closing pair.
+
 If on an opening delimiter, move forward into balanced expression.
 
 If on a closing delimiter, refuse to delete unless the balanced
@@ -8830,6 +8832,14 @@ Examples:
            (n (if raw 100000000
                 (prefix-numeric-value arg))))
       (cond
+       ((and (= n 1)
+             (eq sp-last-operation 'sp-insert-pair)
+             (-when-let (overlay (--find
+                                  (and (eq (overlay-get it 'type) 'pair)
+                                       (eq (overlay-get it 'pair-id) sp-last-inserted-pair))
+                                  (sp--overlays-at)))
+               (delete-region (point) (overlay-end overlay))
+               t)))
        ((> n 0)
         (while (> n 0)
           (cond
